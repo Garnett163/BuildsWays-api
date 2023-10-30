@@ -8,7 +8,7 @@ const helmet = require('helmet');
 const errorHandler = require('./middlewares/errorHandler');
 // const router = require('./routes');
 const sequelize = require('./db');
-const models = require('./models/models');
+// const models = require('./models/models');
 const { PORT, corsOptions } = require('./utils/config');
 
 const app = express();
