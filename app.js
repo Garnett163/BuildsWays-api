@@ -1,12 +1,14 @@
 require('dotenv').config();
 const express = require('express');
+const path = require('path');
 const { errors } = require('celebrate');
 const cookies = require('cookie-parser');
 const cors = require('cors');
 const helmet = require('helmet');
 // const limiter = require('./middlewares/rateLimit');
+const fileUpload = require('express-fileupload');
 const errorHandler = require('./middlewares/errorHandler');
-// const router = require('./routes');
+const router = require('./routes');
 const sequelize = require('./db');
 // const models = require('./models/models');
 const { PORT, corsOptions } = require('./utils/config');
@@ -32,9 +34,11 @@ app.use(helmet());
 // app.use(limiter);
 app.use(cookies());
 app.use(express.json());
+app.use(express.static(path.resolve(__dirname, 'static')));
+app.use(fileUpload({}));
 app.use(requestLogger);
 
-// app.use(router);
+app.use('/api', router);
 app.use(errorLogger);
 app.use(errors());
 app.use(errorHandler);

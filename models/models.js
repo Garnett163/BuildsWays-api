@@ -51,7 +51,7 @@ BasketProduct.belongsTo(Basket);
 Category.hasMany(Product, { foreignKey: 'categoryId' });
 Product.belongsTo(Category, { foreignKey: 'categoryId' });
 
-Product.hasMany(ProductInfo);
+Product.hasMany(ProductInfo, { as: 'info' });
 ProductInfo.belongsTo(Product);
 
 module.exports = {
