@@ -6,10 +6,10 @@ const categoriesRouter = require('./categories');
 const productsRouter = require('./products');
 const favoritesRouter = require('./favorites');
 
-const { login, createUser, logout } = require('../controllers/users');
+const { login, logout, register } = require('../controllers/users');
 
 router.use('/signin', login);
-router.use('/signup', createUser);
+router.use('/signup', register);
 router.use('/signout', logout);
 
 router.use('/categories', categoriesRouter);

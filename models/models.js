@@ -1,12 +1,31 @@
 const { DataTypes } = require('sequelize');
+const bcrypt = require('bcrypt');
 const sequelize = require('../db');
+const UnauthorizedError = require('../errors/UnauthorizedError');
 
 const User = sequelize.define('user', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  name: { type: DataTypes.STRING },
   email: { type: DataTypes.STRING, unique: true },
   password: { type: DataTypes.STRING },
   role: { type: DataTypes.STRING, defaultValue: 'USER' },
 });
+
+User.findUserByCredentials = async (email, password) => {
+  const user = await User.findOne({ where: { email }, attributes: ['id', 'name', 'email', 'role', 'password'] });
+
+  if (!user) {
+    return Promise.reject(new UnauthorizedError('Неправильные почта или пароль'));
+  }
+
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+
+  if (!isPasswordValid) {
+    return Promise.reject(new UnauthorizedError('Неправильные почта или пароль'));
+  }
+
+  return user;
+};
 
 const Basket = sequelize.define('basket', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
