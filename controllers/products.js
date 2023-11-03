@@ -1,10 +1,11 @@
 const uuid = require('uuid');
 const path = require('path');
+const { UniqueConstraintError, ValidationError } = require('sequelize');
 const { Product, ProductInfo } = require('../models/models');
 const { CREATED_STATUS } = require('../utils/constants');
 const NotFoundError = require('../errors/NotFoundError');
-// const BadRequestError = require('../errors/BadRequestError');
-// const ConflictError = require('../errors/ConflictError');
+const BadRequestError = require('../errors/BadRequestError');
+const ConflictError = require('../errors/ConflictError');
 
 const getProducts = async (req, res, next) => {
   try {
@@ -46,6 +47,12 @@ const createProduct = async (req, res, next) => {
     }
     return res.status(CREATED_STATUS).send(product);
   } catch (error) {
+    if (error instanceof UniqueConstraintError) {
+      return next(new ConflictError('Товар с таким названием уже существует!'));
+    }
+    if (error instanceof ValidationError) {
+      return next(new BadRequestError('Переданы некорректные данные!'));
+    }
     return next(error);
   }
 };
@@ -65,6 +72,9 @@ const getProductById = async (req, res, next) => {
 
     return res.send(product);
   } catch (error) {
+    if (error instanceof ValidationError) {
+      return next(new BadRequestError('Переданы некорректные данные!'));
+    }
     return next(error);
   }
 };

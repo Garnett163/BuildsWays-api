@@ -1,10 +1,11 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { SequelizeEmptyResultError, UniqueConstraintError, ValidationError } = require('sequelize');
 const { JWT_SECRET } = require('../utils/config');
 const { User } = require('../models/models');
 const { CREATED_STATUS } = require('../utils/constants');
 const NotFoundError = require('../errors/NotFoundError');
-// const BadRequestError = require('../errors/BadRequestError');
+const BadRequestError = require('../errors/BadRequestError');
 const ConflictError = require('../errors/ConflictError');
 
 const register = async (req, res, next) => {
@@ -13,12 +14,6 @@ const register = async (req, res, next) => {
   } = req.body;
 
   try {
-    const candidate = await User.findOne({ where: { email } });
-
-    if (candidate) {
-      return next(new ConflictError('Пользователь с таким email уже существует!'));
-    }
-
     const hashPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
@@ -30,6 +25,12 @@ const register = async (req, res, next) => {
       id: user.id, name: user.name, email: user.email, role: user.role,
     });
   } catch (error) {
+    if (error instanceof UniqueConstraintError) {
+      return next(new ConflictError('Пользователь с таким email уже существует!'));
+    }
+    if (error instanceof ValidationError) {
+      return next(new BadRequestError('Переданы некорректные данные!'));
+    }
     return next(error);
   }
 };
@@ -61,18 +62,51 @@ const getCurrentUser = async (req, res, next) => {
   try {
     const user = await User.findByPk(id);
 
-    if (!user) {
-      throw new NotFoundError('Пользователь по указанному id не найден!');
-    }
+    // if (!user) {
+    //   throw new NotFoundError('Пользователь по указанному id не найден!');
+    // }
 
-    res.send({
+    return res.send({
       id: user.id,
       name: user.name,
       email: user.email,
       role: user.role,
     });
   } catch (error) {
-    next(error);
+    if (error instanceof SequelizeEmptyResultError) {
+      return next(new NotFoundError('Пользователь с таким id не найден!'));
+    }
+    return next(error);
+  }
+};
+
+const updateUserInfo = async (req, res, next) => {
+  const { name, email } = req.body;
+  const userId = req.user.id;
+
+  try {
+    const [rowsAffected, [updatedUser]] = await User.update({ name, email }, {
+      where: { id: userId },
+      returning: true,
+    });
+
+    if (rowsAffected === 0) {
+      throw new NotFoundError('Пользователь с указанным id не найден!');
+    }
+
+    return res.send(updatedUser);
+  } catch (error) {
+    // if (error instanceof SequelizeEmptyResultError) {
+    //   return next(new NotFoundError('Пользователь с таким id не найден!'));
+    // }
+    if (error instanceof UniqueConstraintError) {
+      return next(new ConflictError('Пользователь с таким email уже существует!'));
+    }
+    if (error instanceof ValidationError) {
+      return next(new BadRequestError('Переданы некорректные данные!'));
+    }
+
+    return next(error);
   }
 };
 
@@ -100,7 +134,7 @@ const logout = (req, res) => {
 module.exports = {
   getCurrentUser,
   register,
-  // updateUserInfo,
+  updateUserInfo,
   login,
   logout,
 };
