@@ -2,13 +2,13 @@ const router = require('express').Router();
 
 // const { validateUpdateUserInfo } = require('../middlewares/validation');
 
-// const {
-//   getCurrentUser,
-//   updateUserInfo,
-// } = require('../controllers/users');
+const {
+  getFavorites,
+  addToFavorites,
+} = require('../controllers/favorites');
 
-// router.get('/', getCurrentUser);
-// router.post('/', getCurrentUser);
+router.get('/', getFavorites);
+router.post('/:id', addToFavorites);
 // router.delete('/', getCurrentUser);
 
 module.exports = router;
