@@ -40,7 +40,7 @@ const login = async (req, res, next) => {
     const { email, password } = req.body;
     const user = await User.findUserByCredentials(email, password);
 
-    const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
     res.cookie('jwt', token, { httpOnly: true, maxAge: 604800000, sameSite: true });
     res.send({
       user: {

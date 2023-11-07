@@ -1,6 +1,5 @@
 const router = require('express').Router();
-
-// const { validateUpdateUserInfo } = require('../middlewares/validation');
+const checkAdmin = require('../middlewares/checkAdmin');
 
 const {
   getProducts,
@@ -10,9 +9,9 @@ const {
 } = require('../controllers/products');
 
 router.get('/', getProducts);
-router.post('/', createProduct);
-// router.patch('/', getCurrentUser);
-router.delete('/:id', deleteProduct);
+router.post('/', checkAdmin, createProduct);
+// router.patch('/', checkAdmin, getCurrentUser);
+router.delete('/:id', checkAdmin, deleteProduct);
 router.get('/:id', getProductById);
 
 module.exports = router;
