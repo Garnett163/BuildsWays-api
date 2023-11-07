@@ -94,7 +94,11 @@ const updateUserInfo = async (req, res, next) => {
       throw new NotFoundError('Пользователь с указанным id не найден!');
     }
 
-    return res.send(updatedUser);
+    return res.send({
+      id: updatedUser.id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+    });
   } catch (error) {
     // if (error instanceof SequelizeEmptyResultError) {
     //   return next(new NotFoundError('Пользователь с таким id не найден!'));

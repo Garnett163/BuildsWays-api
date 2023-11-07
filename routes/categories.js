@@ -1,6 +1,5 @@
 const router = require('express').Router();
-
-// const { validateUpdateUserInfo } = require('../middlewares/validation');
+const checkAdmin = require('../middlewares/checkAdmin');
 
 const {
   getCategories,
@@ -8,7 +7,7 @@ const {
 } = require('../controllers/categories');
 
 router.get('/', getCategories);
-router.post('/', createCategory);
+router.post('/', checkAdmin, createCategory);
 // router.patch('/', getCurrentUser);
 // router.delete('/', getCurrentUser);
 

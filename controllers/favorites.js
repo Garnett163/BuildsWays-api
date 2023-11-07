@@ -47,7 +47,7 @@ const addToFavorites = async (req, res, next) => {
       productId: product.id,
     });
 
-    await Product.update({ isFavorite: true }, { where: { id: product.id } });
+    // await Product.update({ isFavorite: true }, { where: { id: product.id } });
 
     return res.send({ message: 'Продукт успешно добавлен в избранное' });
   } catch (error) {
@@ -55,12 +55,43 @@ const addToFavorites = async (req, res, next) => {
   }
 };
 
-// const deleteFromFavorites = async (req, res, next) => {
+const deleteFromFavorites = async (req, res, next) => {
+  try {
+    const user = await User.findByPk(req.user.id);
+    const product = await Product.findByPk(req.params.id);
 
-// };
+    if (!user || !product) {
+      return res.status(404).send({ message: 'Пользователь или продукт не найдены' });
+    }
+
+    const isProductInFavorites = await Favorite.findOne({
+      where: {
+        userId: user.id,
+        productId: product.id,
+      },
+    });
+
+    if (!isProductInFavorites) {
+      return res.status(404).send({ message: 'Товар не найден в избранном' });
+    }
+
+    await Favorite.destroy({
+      where: {
+        userId: user.id,
+        productId: product.id,
+      },
+    });
+
+    // await Product.update({ isFavorite: false }, { where: { id: product.id } });
+
+    return res.send({ message: 'Продукт успешно удален из избранного' });
+  } catch (error) {
+    return next(error);
+  }
+};
 
 module.exports = {
   getFavorites,
   addToFavorites,
-  // deleteFromFavorites,
+  deleteFromFavorites,
 };

@@ -5,10 +5,11 @@ const router = require('express').Router();
 const {
   getFavorites,
   addToFavorites,
+  deleteFromFavorites,
 } = require('../controllers/favorites');
 
 router.get('/', getFavorites);
 router.post('/:id', addToFavorites);
-// router.delete('/', getCurrentUser);
+router.delete('/:id', deleteFromFavorites);
 
 module.exports = router;
