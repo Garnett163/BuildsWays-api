@@ -5,12 +5,13 @@ const {
   getProducts,
   createProduct,
   deleteProduct,
+  updateProduct,
   getProductById,
 } = require('../controllers/products');
 
 router.get('/', getProducts);
 router.post('/', checkAdmin, createProduct);
-// router.patch('/', checkAdmin, getCurrentUser);
+router.patch('/:id', checkAdmin, updateProduct);
 router.delete('/:id', checkAdmin, deleteProduct);
 router.get('/:id', getProductById);
 

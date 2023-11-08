@@ -114,22 +114,6 @@ const updateUserInfo = async (req, res, next) => {
   }
 };
 
-// const updateUserInfo = (req, res, next) => {
-//   const { name, email } = req.body;
-//   Models.findByIdAndUpdate(req.user._id, { name, email }, { new: true, runValidators: true })
-//     .orFail(new NotFoundError('Пользователь с указанным id не найден!'))
-//     .then((user) => res.send(user))
-//     .catch((err) => {
-//       if (err.code === 11000) {
-//         return next(new ConflictError('Пользователь с таким email уже существует!'));
-//       }
-//       // if (err instanceof ValidationError) {
-//       //return next(new BadRequestError('Переданы некорректные данные при обновлении профиля!'));
-//       // }
-//       return next(err);
-//     });
-// };
-
 const logout = (req, res) => {
   res.clearCookie('jwt');
   res.send({ message: 'Вы успешно вышли из аккаунта!' });

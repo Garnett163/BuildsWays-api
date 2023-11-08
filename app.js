@@ -34,7 +34,7 @@ app.use(helmet());
 // app.use(limiter);
 app.use(cookies());
 app.use(express.json());
-app.use(express.static(path.resolve(__dirname, 'static')));
+app.use(express.static(path.resolve(__dirname, 'images')));
 app.use(fileUpload({}));
 app.use(requestLogger);
 

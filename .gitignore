@@ -15,5 +15,5 @@ node_modules
 .vscode
 
 .env
-
-static
+images/*
+!images/default-img-product.png
