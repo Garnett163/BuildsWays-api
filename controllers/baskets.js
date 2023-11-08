@@ -1,6 +1,4 @@
-const {
-  User, Product, Basket, BasketProduct,
-} = require('../models/models');
+const { Product, Basket, BasketProduct } = require('../models/models');
 
 const getBasket = async (req, res, next) => {
   try {
@@ -8,7 +6,7 @@ const getBasket = async (req, res, next) => {
     const basket = await Basket.findOne({ where: { userId } });
 
     if (!basket) {
-      return res.status(404).send({ message: 'Корзина не найдена' });
+      return res.status(404).send({ message: 'В корзине пока нет ничего' });
     }
 
     const basketProducts = await BasketProduct.findAll({
@@ -22,17 +20,28 @@ const getBasket = async (req, res, next) => {
   }
 };
 
-// Добавление товара в корзину пользователя
 const addToBasket = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const productId = req.params.id;
+    const product = await Product.findByPk(productId);
+    // let { quantity } = req.body.quantity
 
-    let basketProduct = await BasketProduct.findOne({ where: { userId, productId } });
+    if (!product) {
+      return res.status(404).send({ message: 'Продукт не найден' });
+    }
+
+    let basket = await Basket.findOne({ where: { userId } });
+
+    if (!basket) {
+      basket = await Basket.create({ userId });
+    }
+
+    let basketProduct = await BasketProduct.findOne({ where: { basketId: basket.id, productId } });
 
     if (!basketProduct) {
       basketProduct = await BasketProduct.create({
-        userId,
+        basketId: basket.id,
         productId,
         quantity: 1,
       });
@@ -41,26 +50,33 @@ const addToBasket = async (req, res, next) => {
       await basketProduct.save();
     }
 
-    return res.status(201).send(basketProduct);
+    return res.send({ basketProduct, message: 'Продукт успешно добавлен в корзину' });
   } catch (error) {
     return next(error);
   }
 };
 
-// Удаление товара из корзины пользователя
 const deleteFromBasket = async (req, res, next) => {
   try {
-    const user = await User.findByPk(req.user.id);
-    const product = await Product.findByPk(req.params.id);
+    const userId = req.user.id;
+    const productId = req.params.id;
+    const basket = await Basket.findOne({ where: { userId } });
 
-    if (!user || !product) {
-      return res.status(404).send({ message: 'Пользователь или продукт не найдены' });
+    // eslint-disable-next-line prefer-const
+    let basketProduct = await BasketProduct.findOne({ where: { basketId: basket.id, productId } });
+
+    if (!basketProduct) {
+      return res.status(404).send({ message: 'Товар не найден в корзине' });
     }
 
-    // Удаляем товар из корзины пользователя
-    await user.removeProduct(product);
+    if (basketProduct.quantity === 1) {
+      await basketProduct.destroy();
+    } else {
+      basketProduct.quantity -= 1;
+      await basketProduct.save();
+    }
 
-    return res.send({ message: 'Продукт успешно удален из корзины' });
+    return res.status(200).send({ basketProduct, message: 'Товар успешно удален из корзины' });
   } catch (error) {
     return next(error);
   }

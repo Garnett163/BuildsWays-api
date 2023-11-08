@@ -41,7 +41,6 @@ const Product = sequelize.define('product', {
   name: { type: DataTypes.STRING, unique: true, allowNull: false },
   price: { type: DataTypes.INTEGER, allowNull: false },
   img: { type: DataTypes.STRING, allowNull: false },
-  // isFavorite: { type: DataTypes.BOOLEAN, defaultValue: false },
 });
 
 const Favorite = sequelize.define('favorite', {
@@ -69,7 +68,7 @@ Basket.hasMany(BasketProduct);
 BasketProduct.belongsTo(Basket);
 
 // User.belongsToMany(Product, { through: Basket });
-Product.belongsToMany(User, { through: BasketProduct });
+Product.belongsToMany(Basket, { through: BasketProduct });
 BasketProduct.belongsTo(Product, { foreignKey: 'productId' });
 
 Category.hasMany(Product, { foreignKey: 'categoryId' });
