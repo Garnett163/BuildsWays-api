@@ -1,4 +1,7 @@
+const { ValidationError } = require('sequelize');
 const { Product, Basket, BasketProduct } = require('../models/models');
+const NotFoundError = require('../errors/NotFoundError');
+const BadRequestError = require('../errors/BadRequestError');
 
 const getBasket = async (req, res, next) => {
   try {
@@ -6,7 +9,7 @@ const getBasket = async (req, res, next) => {
     const basket = await Basket.findOne({ where: { userId } });
 
     if (!basket) {
-      return res.status(404).send({ message: 'В корзине пока нет ничего' });
+      return next(new NotFoundError('В корзине пока ничего нет!'));
     }
 
     const basketProducts = await BasketProduct.findAll({
@@ -28,7 +31,7 @@ const addToBasket = async (req, res, next) => {
     // let { quantity } = req.body.quantity
 
     if (!product) {
-      return res.status(404).send({ message: 'Продукт не найден' });
+      return next(new NotFoundError('Товар с данным id не найден!'));
     }
 
     let basket = await Basket.findOne({ where: { userId } });
@@ -50,8 +53,11 @@ const addToBasket = async (req, res, next) => {
       await basketProduct.save();
     }
 
-    return res.send({ basketProduct, message: 'Продукт успешно добавлен в корзину' });
+    return res.send({ basketProduct, message: 'Товар успешно добавлен в корзину!' });
   } catch (error) {
+    if (error instanceof ValidationError) {
+      return next(new BadRequestError('Переданы некорректные данные!'));
+    }
     return next(error);
   }
 };
@@ -66,7 +72,7 @@ const deleteFromBasket = async (req, res, next) => {
     let basketProduct = await BasketProduct.findOne({ where: { basketId: basket.id, productId } });
 
     if (!basketProduct) {
-      return res.status(404).send({ message: 'Товар не найден в корзине' });
+      return res.status(404).send({ message: 'Товара с данным id нет в корзине!' });
     }
 
     if (basketProduct.quantity === 1) {
@@ -78,6 +84,9 @@ const deleteFromBasket = async (req, res, next) => {
 
     return res.status(200).send({ basketProduct, message: 'Товар успешно удален из корзины' });
   } catch (error) {
+    if (error instanceof ValidationError) {
+      return next(new BadRequestError('Переданы некорректные данные!'));
+    }
     return next(error);
   }
 };

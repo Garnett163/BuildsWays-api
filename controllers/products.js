@@ -27,22 +27,28 @@ const getProducts = async (req, res, next) => {
 
 const createProduct = async (req, res, next) => {
   const {
-    name, price, categoryId, info,
+    name, price, categoryId, parameters, description,
   } = req.body;
   let fileName = 'default-img-product.png';
   try {
+    const existingProduct = await Product.findOne({ where: { name } });
+
+    if (existingProduct) {
+      return next(new ConflictError('Товар с таким названием уже существует!'));
+    }
+
     if (req.files && req.files.img) {
       fileName = `${uuid.v4()}.jpg`;
       req.files.img.mv(path.resolve(__dirname, '..', 'images', fileName));
     }
 
     const product = await Product.create({
-      name, price, categoryId, img: fileName,
+      name, price, categoryId, img: fileName, description,
     });
 
-    if (info) {
-      info.JSON.parse(info);
-      info.forEach((i) => ProductInfo.create({
+    if (parameters) {
+      const productParameters = JSON.parse(parameters);
+      productParameters.forEach((i) => ProductInfo.create({
         title: i.title,
         description: i.description,
         productId: product.id,
@@ -79,27 +85,101 @@ const deleteProduct = async (req, res, next) => {
 
     return res.send({
       product,
-      message: 'Продукт и изображение успешно удалены',
+      message: 'Товар успешно удален!',
     });
   } catch (error) {
     if (error instanceof ValidationError) {
-      return next(new BadRequestError('Произошла ошибка валидации данных!'));
+      return next(new BadRequestError('Переданы некорректные данные!'));
     }
     return next(error);
   }
 };
 
+// const updateProduct = async (req, res, next) => {
+//   const productId = req.params.id;
+//   const {
+//     name, price, categoryId, parameters,
+//   } = req.body;
+
+//   try {
+//     const product = await Product.findByPk(productId);
+
+//     if (!product) {
+//       return next(new NotFoundError('Товар с данным id не найден!'));
+//     }
+
+//     const existingProduct = await Product.findOne({ where: { name } });
+
+//     if (existingProduct && existingProduct.id !== productId) {
+//       return next(new ConflictError('Товар с таким названием уже существует!'));
+//     }
+
+//     if (name) {
+//       product.name = name;
+//     }
+//     if (price) {
+//       product.price = price;
+//     }
+//     if (categoryId) {
+//       product.categoryId = categoryId;
+//     }
+
+//     const oldImgPath = product.img;
+
+//     if (req.files && req.files.img) {
+//       const newImgFileName = `${uuid.v4()}.jpg`;
+
+//       if (oldImgPath) {
+//         const oldImgFullPath = path.resolve(__dirname, '..', 'images', oldImgPath);
+//         fs.unlinkSync(oldImgFullPath);
+//       }
+
+//       req.files.img.mv(path.resolve(__dirname, '..', 'images', newImgFileName));
+//       product.img = newImgFileName;
+//     }
+
+//     await product.save();
+
+//     if (parameters) {
+//       const productParameters = JSON.parse(parameters);
+//       await ProductInfo.destroy({ where: { productId } });
+
+//       productParameters.forEach((i) => ProductInfo.create({
+//         title: i.title,
+//         description: i.description,
+//         productId,
+//       }));
+//     }
+
+//     return res.send(product);
+//   } catch (error) {
+//     if (error instanceof UniqueConstraintError) {
+//       return next(new ConflictError('Товар с таким названием уже существует!'));
+//     }
+//     if (error instanceof ValidationError) {
+//       return next(new BadRequestError('Переданы некорректные данные!'));
+//     }
+//     return next(error);
+//   }
+// };
+
 const updateProduct = async (req, res, next) => {
   const productId = req.params.id;
   const {
-    name, price, categoryId, info,
+    name, price, categoryId, parameters, description,
   } = req.body;
 
   try {
     const product = await Product.findByPk(productId);
 
     if (!product) {
-      return next(new NotFoundError('Продукт не найден'));
+      return next(new NotFoundError('Товар с данным id не найден!'));
+    }
+
+    const existingProduct = await Product.findOne({ where: { name } });
+
+    if (existingProduct && existingProduct.id !== productId) {
+      return next(new ConflictError('Товар с таким названием уже существует!'));
     }
 
     if (name) {
@@ -110,6 +190,9 @@ const updateProduct = async (req, res, next) => {
     }
     if (categoryId) {
       product.categoryId = categoryId;
+    }
+    if (description) {
+      product.description = description;
     }
 
     const oldImgPath = product.img;
@@ -128,11 +211,11 @@ const updateProduct = async (req, res, next) => {
 
     await product.save();
 
-    if (info) {
-      const productInfo = JSON.parse(info);
+    if (parameters) {
+      const productParameters = JSON.parse(parameters);
       await ProductInfo.destroy({ where: { productId } });
 
-      productInfo.forEach((i) => ProductInfo.create({
+      productParameters.forEach((i) => ProductInfo.create({
         title: i.title,
         description: i.description,
         productId,
@@ -141,6 +224,9 @@ const updateProduct = async (req, res, next) => {
 
     return res.send(product);
   } catch (error) {
+    if (error instanceof UniqueConstraintError) {
+      return next(new ConflictError('Товар с таким названием уже существует!'));
+    }
     if (error instanceof ValidationError) {
       return next(new BadRequestError('Переданы некорректные данные!'));
     }
@@ -154,7 +240,7 @@ const getProductById = async (req, res, next) => {
   try {
     const product = await Product.findOne({
       where: { id },
-      include: [{ model: ProductInfo, as: 'info' }],
+      include: [{ model: ProductInfo, as: 'parameters' }],
     });
 
     if (!product) {

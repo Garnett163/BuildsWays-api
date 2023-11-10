@@ -6,7 +6,13 @@ const UnauthorizedError = require('../errors/UnauthorizedError');
 const User = sequelize.define('user', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
   name: { type: DataTypes.STRING },
-  email: { type: DataTypes.STRING, unique: true },
+  email: {
+    type: DataTypes.STRING,
+    unique: true,
+    validate: {
+      isEmail: true,
+    },
+  },
   password: { type: DataTypes.STRING },
   role: { type: DataTypes.STRING, defaultValue: 'USER' },
 });
@@ -39,6 +45,7 @@ const BasketProduct = sequelize.define('basket_product', {
 const Product = sequelize.define('product', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
   name: { type: DataTypes.STRING, unique: true, allowNull: false },
+  description: { type: DataTypes.STRING, allowNull: true, defaultValue: '' },
   price: { type: DataTypes.INTEGER, allowNull: false },
   img: { type: DataTypes.STRING, allowNull: false },
 });
@@ -50,6 +57,7 @@ const Favorite = sequelize.define('favorite', {
 const Category = sequelize.define('category', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
   name: { type: DataTypes.STRING, unique: true, allowNull: false },
+  img: { type: DataTypes.STRING, allowNull: false },
 });
 
 const ProductInfo = sequelize.define('product_info', {
@@ -74,7 +82,7 @@ BasketProduct.belongsTo(Product, { foreignKey: 'productId' });
 Category.hasMany(Product, { foreignKey: 'categoryId' });
 Product.belongsTo(Category, { foreignKey: 'categoryId' });
 
-Product.hasMany(ProductInfo, { as: 'info' });
+Product.hasMany(ProductInfo, { as: 'parameters' });
 ProductInfo.belongsTo(Product);
 
 module.exports = {

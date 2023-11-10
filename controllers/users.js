@@ -10,14 +10,14 @@ const ConflictError = require('../errors/ConflictError');
 
 const register = async (req, res, next) => {
   const {
-    name, email, password, role,
+    name, email, password,
   } = req.body;
 
   try {
     const hashPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
-      name, email, role, password: hashPassword,
+      name, email, role: 'USER', password: hashPassword,
     });
     // const basket = await Basket.create({ userId: user.id });
 
