@@ -2,13 +2,13 @@ const { celebrate, Joi } = require('celebrate');
 
 const validateCreateUser = celebrate({
   body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
+    name: Joi.string().required().min(2).max(30),
     email: Joi.string()
       .required()
       .email()
-      .min(2)
+      .min(5)
       .max(30),
-    password: Joi.string().required().min(2).max(30),
+    password: Joi.string().required().min(3).max(30),
     role: Joi.string(),
   }),
 });
@@ -19,7 +19,7 @@ const validateUpdateUserInfo = celebrate({
     email: Joi.string()
       .required()
       .email()
-      .min(2)
+      .min(5)
       .max(30),
   }),
 });
@@ -29,9 +29,9 @@ const validatelogin = celebrate({
     email: Joi.string()
       .required()
       .email()
-      .min(2)
+      .min(5)
       .max(30),
-    password: Joi.string().required(),
+    password: Joi.string().required().min(3).max(30),
   }),
 });
 
@@ -44,7 +44,7 @@ const validateCreateAndUpdateCategory = celebrate({
 const validateCreateAndUpdateProduct = celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(50),
-    description: Joi.string().min(2).max(50),
+    description: Joi.string().min(2).max(255),
     price: Joi.number().required(),
     categoryId: Joi.number().required(),
   }),
