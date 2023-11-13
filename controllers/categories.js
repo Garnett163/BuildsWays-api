@@ -21,6 +21,13 @@ const createCategory = async (req, res, next) => {
   try {
     const { name } = req.body;
 
+    const imgFile = req.files && req.files.img;
+    const maxFileSize = 2097152;
+
+    if (imgFile && imgFile.size > maxFileSize) {
+      return next(new BadRequestError('Размер файла превышает допустимый предел!'));
+    }
+
     const existingCategory = await Category.findOne({ where: { name } });
 
     if (existingCategory) {
@@ -29,7 +36,7 @@ const createCategory = async (req, res, next) => {
 
     let fileName = 'default-category-img.png';
 
-    if (req.files && req.files.img) {
+    if (imgFile) {
       fileName = `${uuid.v4()}.jpg`;
 
       const targetFolder = path.resolve(__dirname, '..', 'images', 'category');
@@ -37,7 +44,7 @@ const createCategory = async (req, res, next) => {
         fs.mkdirSync(targetFolder, { recursive: true });
       }
 
-      req.files.img.mv(path.resolve(targetFolder, fileName));
+      imgFile.mv(path.resolve(targetFolder, fileName));
     }
 
     const category = await Category.create({ name, img: fileName });
@@ -95,7 +102,7 @@ const updateCategory = async (req, res, next) => {
       return next(new NotFoundError('Категория с данным id не найдена!'));
     }
 
-    if (name) {
+    if (name && name !== category.name) {
       const existingCategory = await Category.findOne({ where: { name } });
 
       if (existingCategory) {
@@ -106,6 +113,13 @@ const updateCategory = async (req, res, next) => {
     }
 
     if (req.files && req.files.img) {
+      const imgFile = req.files.img;
+      const maxFileSize = 2097152;
+
+      if (imgFile.size > maxFileSize) {
+        return next(new BadRequestError('Размер файла превышает допустимый предел!'));
+      }
+
       newImageFileName = `${uuid.v4()}.jpg`;
 
       const targetFolder = path.resolve(__dirname, '..', 'images', 'category');
@@ -118,7 +132,7 @@ const updateCategory = async (req, res, next) => {
         fs.unlinkSync(imagePath);
       }
 
-      req.files.img.mv(path.resolve(targetFolder, newImageFileName));
+      imgFile.mv(path.resolve(targetFolder, newImageFileName));
       category.img = newImageFileName;
     }
 

@@ -38,6 +38,13 @@ const createProduct = async (req, res, next) => {
     }
 
     if (req.files && req.files.img) {
+      const imgFile = req.files.img;
+      const maxFileSize = 2097152;
+
+      if (imgFile.size > maxFileSize) {
+        return next(new BadRequestError('Размер файла превышает допустимый предел!'));
+      }
+
       fileName = `${uuid.v4()}.jpg`;
       req.files.img.mv(path.resolve(__dirname, '..', 'images', fileName));
     }
@@ -95,74 +102,6 @@ const deleteProduct = async (req, res, next) => {
   }
 };
 
-// const updateProduct = async (req, res, next) => {
-//   const productId = req.params.id;
-//   const {
-//     name, price, categoryId, parameters,
-//   } = req.body;
-
-//   try {
-//     const product = await Product.findByPk(productId);
-
-//     if (!product) {
-//       return next(new NotFoundError('Товар с данным id не найден!'));
-//     }
-
-//     const existingProduct = await Product.findOne({ where: { name } });
-
-//     if (existingProduct && existingProduct.id !== productId) {
-//       return next(new ConflictError('Товар с таким названием уже существует!'));
-//     }
-
-//     if (name) {
-//       product.name = name;
-//     }
-//     if (price) {
-//       product.price = price;
-//     }
-//     if (categoryId) {
-//       product.categoryId = categoryId;
-//     }
-
-//     const oldImgPath = product.img;
-
-//     if (req.files && req.files.img) {
-//       const newImgFileName = `${uuid.v4()}.jpg`;
-
-//       if (oldImgPath) {
-//         const oldImgFullPath = path.resolve(__dirname, '..', 'images', oldImgPath);
-//         fs.unlinkSync(oldImgFullPath);
-//       }
-
-//       req.files.img.mv(path.resolve(__dirname, '..', 'images', newImgFileName));
-//       product.img = newImgFileName;
-//     }
-
-//     await product.save();
-
-//     if (parameters) {
-//       const productParameters = JSON.parse(parameters);
-//       await ProductInfo.destroy({ where: { productId } });
-
-//       productParameters.forEach((i) => ProductInfo.create({
-//         title: i.title,
-//         description: i.description,
-//         productId,
-//       }));
-//     }
-
-//     return res.send(product);
-//   } catch (error) {
-//     if (error instanceof UniqueConstraintError) {
-//       return next(new ConflictError('Товар с таким названием уже существует!'));
-//     }
-//     if (error instanceof ValidationError) {
-//       return next(new BadRequestError('Переданы некорректные данные!'));
-//     }
-//     return next(error);
-//   }
-// };
-
 const updateProduct = async (req, res, next) => {
   const productId = req.params.id;
   const {
@@ -199,6 +138,12 @@ const updateProduct = async (req, res, next) => {
 
     if (req.files && req.files.img) {
       const newImgFileName = `${uuid.v4()}.jpg`;
+      const fileSize = req.files.img.size;
+      const maxSize = 2097152;
+
+      if (fileSize > maxSize) {
+        return next(new BadRequestError('Размер файла превышает допустимый предел!'));
+      }
 
       if (oldImgPath) {
         const oldImgFullPath = path.resolve(__dirname, '..', 'images', oldImgPath);

@@ -8,10 +8,11 @@ const {
   updateProduct,
   getProductById,
 } = require('../controllers/products');
+const { validateCreateAndUpdateProduct } = require('../middlewares/validation');
 
 router.get('/', getProducts);
-router.post('/', checkAdmin, createProduct);
-router.patch('/:id', checkAdmin, updateProduct);
+router.post('/', validateCreateAndUpdateProduct, checkAdmin, createProduct);
+router.patch('/:id', validateCreateAndUpdateProduct, checkAdmin, updateProduct);
 router.delete('/:id', checkAdmin, deleteProduct);
 router.get('/:id', getProductById);
 

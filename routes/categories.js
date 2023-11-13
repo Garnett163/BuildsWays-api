@@ -7,10 +7,11 @@ const {
   deleteCategory,
   updateCategory,
 } = require('../controllers/categories');
+const { validateCreateAndUpdateCategory } = require('../middlewares/validation');
 
 router.get('/', getCategories);
-router.post('/', checkAdmin, createCategory);
-router.patch('/:id', checkAdmin, updateCategory);
+router.post('/', validateCreateAndUpdateCategory, checkAdmin, createCategory);
+router.patch('/:id', validateCreateAndUpdateCategory, checkAdmin, updateCategory);
 router.delete('/:id', checkAdmin, deleteCategory);
 
 module.exports = router;

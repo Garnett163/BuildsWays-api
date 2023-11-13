@@ -7,9 +7,10 @@ const productsRouter = require('./products');
 const favoritesRouter = require('./favorites');
 
 const { login, logout, register } = require('../controllers/users');
+const { validateCreateUser, validatelogin } = require('../middlewares/validation');
 
-router.use('/signin', login);
-router.use('/signup', register);
+router.use('/signin', validatelogin, login);
+router.use('/signup', validateCreateUser, register);
 router.use('/signout', logout);
 
 router.use('/categories', categoriesRouter);
