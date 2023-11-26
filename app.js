@@ -1,5 +1,7 @@
 require('dotenv').config();
 const express = require('express');
+const swaggerUi = require('swagger-ui-express');
+const swaggerJSDoc = require('swagger-jsdoc');
 const path = require('path');
 const { errors } = require('celebrate');
 const cookies = require('cookie-parser');
@@ -10,10 +12,10 @@ const fileUpload = require('express-fileupload');
 const errorHandler = require('./middlewares/errorHandler');
 const router = require('./routes');
 const sequelize = require('./db');
-// const models = require('./models/models');
-const { PORT, corsOptions } = require('./utils/config');
+const { PORT, corsOptions, swaggerOptions } = require('./utils/config');
 
 const app = express();
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerJSDoc(swaggerOptions)));
 
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 

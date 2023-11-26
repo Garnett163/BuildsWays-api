@@ -1,18 +1,13 @@
 const router = require('express').Router();
 const auth = require('../middlewares/auth');
+const authRouter = require('./auth');
 const userRouter = require('./users');
 const categoriesRouter = require('./categories');
 const basketsRouter = require('./baskets');
 const productsRouter = require('./products');
 const favoritesRouter = require('./favorites');
 
-const { login, logout, register } = require('../controllers/users');
-const { validateCreateUser, validatelogin } = require('../middlewares/validation');
-
-router.use('/signin', validatelogin, login);
-router.use('/signup', validateCreateUser, register);
-router.use('/signout', logout);
-
+router.use('/', authRouter);
 router.use('/categories', categoriesRouter);
 router.use('/products', productsRouter);
 

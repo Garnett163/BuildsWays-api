@@ -8,8 +8,26 @@ const corsOptions = {
   credentials: true,
 };
 
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'BuildsWays API',
+      version: '1.0.0',
+      description: 'Online store',
+    },
+    servers: [
+      {
+        url: 'http://localhost:3000',
+      },
+    ],
+  },
+  apis: ['./routes/*.js'],
+};
+
 module.exports = {
   PORT,
   JWT_SECRET,
   corsOptions,
+  swaggerOptions,
 };
