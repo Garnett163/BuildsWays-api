@@ -34,12 +34,12 @@ const createCategory = async (req, res, next) => {
       return next(new ConflictError('Категория с данным названием уже существует!'));
     }
 
-    let fileName = 'default-category-img.png';
+    let fileName = 'default-img-category.png';
 
     if (imgFile) {
       fileName = `${uuid.v4()}.jpg`;
 
-      const targetFolder = path.resolve(__dirname, '..', 'images', 'category');
+      const targetFolder = path.resolve(__dirname, '..', 'images');
       if (!fs.existsSync(targetFolder)) {
         fs.mkdirSync(targetFolder, { recursive: true });
       }
@@ -70,7 +70,7 @@ const deleteCategory = async (req, res, next) => {
       return next(new NotFoundError('Категория с данным id не найдена!'));
     }
 
-    const imagePath = path.resolve(__dirname, '..', 'images', 'category', category.img);
+    const imagePath = path.resolve(__dirname, '..', 'images', category.img);
 
     if (fs.existsSync(imagePath)) {
       fs.unlinkSync(imagePath);
@@ -122,12 +122,12 @@ const updateCategory = async (req, res, next) => {
 
       newImageFileName = `${uuid.v4()}.jpg`;
 
-      const targetFolder = path.resolve(__dirname, '..', 'images', 'category');
+      const targetFolder = path.resolve(__dirname, '..', 'images');
       if (!fs.existsSync(targetFolder)) {
         fs.mkdirSync(targetFolder, { recursive: true });
       }
 
-      const imagePath = path.resolve(__dirname, '..', 'images', 'category', category.img);
+      const imagePath = path.resolve(__dirname, '..', 'images', category.img);
       if (fs.existsSync(imagePath)) {
         fs.unlinkSync(imagePath);
       }

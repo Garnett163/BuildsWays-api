@@ -12,7 +12,9 @@ const fileUpload = require('express-fileupload');
 const errorHandler = require('./middlewares/errorHandler');
 const router = require('./routes');
 const sequelize = require('./db');
-const { PORT, corsOptions, swaggerOptions } = require('./utils/config');
+const {
+  PORT, corsOptions, helmetOptions, swaggerOptions,
+} = require('./utils/config');
 
 const app = express();
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerJSDoc(swaggerOptions)));
@@ -32,11 +34,12 @@ const start = async () => {
 };
 
 app.use(cors(corsOptions));
-app.use(helmet());
+app.use(helmet(helmetOptions));
 // app.use(limiter);
 app.use(cookies());
 app.use(express.json());
 app.use(express.static(path.resolve(__dirname, 'images')));
+// app.use(express.static(path.resolve(__dirname, 'images/category')));
 app.use(fileUpload({}));
 app.use(requestLogger);
 

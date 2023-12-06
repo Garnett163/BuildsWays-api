@@ -8,6 +8,18 @@ const corsOptions = {
   credentials: true,
 };
 
+const helmetOptions = {
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", 'https://example.com'],
+      styleSrc: ["'self'", 'https:', "'unsafe-inline'"],
+      imgSrc: ["'self'", 'data:'],
+    },
+  },
+  crossOriginResourcePolicy: { policy: 'same-site' },
+};
+
 const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
@@ -29,5 +41,6 @@ module.exports = {
   PORT,
   JWT_SECRET,
   corsOptions,
+  helmetOptions,
   swaggerOptions,
 };

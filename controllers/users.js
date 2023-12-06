@@ -35,7 +35,7 @@ const register = async (req, res, next) => {
   } catch (error) {
     if (error instanceof UniqueConstraintError) {
       return next(
-        new ConflictError('Пользователь с таким email уже существует!')
+        new ConflictError('Пользователь с таким email уже существует!'),
       );
     }
     if (error instanceof ValidationError) {
@@ -53,7 +53,7 @@ const login = async (req, res, next) => {
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
       JWT_SECRET,
-      { expiresIn: '7d' }
+      { expiresIn: '7d' },
     );
     res.cookie('jwt', token, {
       httpOnly: true,
@@ -105,7 +105,7 @@ const updateUserInfo = async (req, res, next) => {
       {
         where: { id: userId },
         returning: true,
-      }
+      },
     );
 
     if (rowsAffected === 0) {
@@ -123,7 +123,7 @@ const updateUserInfo = async (req, res, next) => {
     // }
     if (error instanceof UniqueConstraintError) {
       return next(
-        new ConflictError('Пользователь с таким email уже существует!')
+        new ConflictError('Пользователь с таким email уже существует!'),
       );
     }
     if (error instanceof ValidationError) {
