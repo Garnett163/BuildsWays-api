@@ -25,13 +25,17 @@ const createCategory = async (req, res, next) => {
     const maxFileSize = 2097152;
 
     if (imgFile && imgFile.size > maxFileSize) {
-      return next(new BadRequestError('Размер файла превышает допустимый предел!'));
+      return next(
+        new BadRequestError('Размер файла превышает допустимый предел!'),
+      );
     }
 
     const existingCategory = await Category.findOne({ where: { name } });
 
     if (existingCategory) {
-      return next(new ConflictError('Категория с данным названием уже существует!'));
+      return next(
+        new ConflictError('Категория с данным названием уже существует!'),
+      );
     }
 
     let fileName = 'default-img-category.png';
@@ -51,7 +55,9 @@ const createCategory = async (req, res, next) => {
     return res.status(CREATED_STATUS).send(category);
   } catch (error) {
     if (error instanceof UniqueConstraintError) {
-      return next(new ConflictError('Категория с данным названием уже существует!'));
+      return next(
+        new ConflictError('Категория с данным названием уже существует!'),
+      );
     }
     if (error instanceof ValidationError) {
       return next(new BadRequestError('Переданы некорректные данные!'));
@@ -70,9 +76,10 @@ const deleteCategory = async (req, res, next) => {
       return next(new NotFoundError('Категория с данным id не найдена!'));
     }
 
+    const imageName = category.img;
     const imagePath = path.resolve(__dirname, '..', 'images', category.img);
 
-    if (fs.existsSync(imagePath)) {
+    if (imageName !== 'default-img-category.png' && fs.existsSync(imagePath)) {
       fs.unlinkSync(imagePath);
     }
 
@@ -106,7 +113,9 @@ const updateCategory = async (req, res, next) => {
       const existingCategory = await Category.findOne({ where: { name } });
 
       if (existingCategory) {
-        return next(new ConflictError('Категория с данным названием уже существует!'));
+        return next(
+          new ConflictError('Категория с данным названием уже существует!'),
+        );
       }
 
       category.name = name;
@@ -117,7 +126,9 @@ const updateCategory = async (req, res, next) => {
       const maxFileSize = 2097152;
 
       if (imgFile.size > maxFileSize) {
-        return next(new BadRequestError('Размер файла превышает допустимый предел!'));
+        return next(
+          new BadRequestError('Размер файла превышает допустимый предел!'),
+        );
       }
 
       newImageFileName = `${uuid.v4()}.jpg`;
@@ -144,7 +155,9 @@ const updateCategory = async (req, res, next) => {
     });
   } catch (error) {
     if (error instanceof UniqueConstraintError) {
-      return next(new ConflictError('Категория с данным названием уже существует!'));
+      return next(
+        new ConflictError('Категория с данным названием уже существует!'),
+      );
     }
     if (error instanceof ValidationError) {
       return next(new BadRequestError('Переданы некорректные данные!'));
