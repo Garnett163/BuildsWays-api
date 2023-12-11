@@ -8,9 +8,21 @@ const NotFoundError = require('../errors/NotFoundError');
 const BadRequestError = require('../errors/BadRequestError');
 const ConflictError = require('../errors/ConflictError');
 
+// const getCategories = async (req, res, next) => {
+//   try {
+//     const categories = await Category.findAll();
+//     return res.send(categories);
+//   } catch (error) {
+//     return next(error);
+//   }
+// };
+
 const getCategories = async (req, res, next) => {
   try {
-    const categories = await Category.findAll();
+    const categories = await Category.findAll({
+      order: [['id', 'ASC']],
+    });
+
     return res.send(categories);
   } catch (error) {
     return next(error);
