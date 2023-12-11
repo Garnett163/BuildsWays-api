@@ -131,6 +131,7 @@ const updateCategory = async (req, res, next) => {
         );
       }
 
+      const imageName = category.img;
       newImageFileName = `${uuid.v4()}.jpg`;
 
       const targetFolder = path.resolve(__dirname, '..', 'images');
@@ -139,7 +140,7 @@ const updateCategory = async (req, res, next) => {
       }
 
       const imagePath = path.resolve(__dirname, '..', 'images', category.img);
-      if (fs.existsSync(imagePath)) {
+      if (imageName !== 'default-img.png' && fs.existsSync(imagePath)) {
         fs.unlinkSync(imagePath);
       }
 

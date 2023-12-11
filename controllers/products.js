@@ -157,7 +157,7 @@ const updateProduct = async (req, res, next) => {
         );
       }
 
-      if (oldImgPath) {
+      if (oldImgPath !== 'default-img.png') {
         const oldImgFullPath = path.resolve(
           __dirname,
           '..',
