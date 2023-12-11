@@ -38,7 +38,7 @@ const createCategory = async (req, res, next) => {
       );
     }
 
-    let fileName = 'default-img-category.png';
+    let fileName = 'default-img.png';
 
     if (imgFile) {
       fileName = `${uuid.v4()}.jpg`;
@@ -79,7 +79,7 @@ const deleteCategory = async (req, res, next) => {
     const imageName = category.img;
     const imagePath = path.resolve(__dirname, '..', 'images', category.img);
 
-    if (imageName !== 'default-img-category.png' && fs.existsSync(imagePath)) {
+    if (imageName !== 'default-img.png' && fs.existsSync(imagePath)) {
       fs.unlinkSync(imagePath);
     }
 

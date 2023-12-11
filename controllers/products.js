@@ -16,7 +16,9 @@ const getProducts = async (req, res, next) => {
     limit = limit || 9;
     const offset = page * limit - limit;
 
-    const queryOptions = categoryId ? { where: { categoryId }, limit, offset } : { limit, offset };
+    const queryOptions = categoryId
+      ? { where: { categoryId }, limit, offset }
+      : { limit, offset };
 
     const products = await Product.findAndCountAll(queryOptions);
     res.send(products);
@@ -29,7 +31,7 @@ const createProduct = async (req, res, next) => {
   const {
     name, price, categoryId, parameters, description,
   } = req.body;
-  let fileName = 'default-img-product.png';
+  let fileName = 'default-img.png';
   try {
     const existingProduct = await Product.findOne({ where: { name } });
 
@@ -42,7 +44,9 @@ const createProduct = async (req, res, next) => {
       const maxFileSize = 2097152;
 
       if (imgFile.size > maxFileSize) {
-        return next(new BadRequestError('Размер файла превышает допустимый предел!'));
+        return next(
+          new BadRequestError('Размер файла превышает допустимый предел!'),
+        );
       }
 
       fileName = `${uuid.v4()}.jpg`;
@@ -50,7 +54,11 @@ const createProduct = async (req, res, next) => {
     }
 
     const product = await Product.create({
-      name, price, categoryId, img: fileName, description,
+      name,
+      price,
+      categoryId,
+      img: fileName,
+      description,
     });
 
     if (parameters) {
@@ -83,8 +91,10 @@ const deleteProduct = async (req, res, next) => {
       return next(new NotFoundError('Товар с данным id не найден!'));
     }
 
+    const imageName = product.img;
     const imagePath = path.resolve(__dirname, '..', 'images', product.img);
-    if (fs.existsSync(imagePath)) {
+
+    if (imageName !== 'default-img.png' && fs.existsSync(imagePath)) {
       fs.unlinkSync(imagePath);
     }
 
@@ -142,11 +152,18 @@ const updateProduct = async (req, res, next) => {
       const maxSize = 2097152;
 
       if (fileSize > maxSize) {
-        return next(new BadRequestError('Размер файла превышает допустимый предел!'));
+        return next(
+          new BadRequestError('Размер файла превышает допустимый предел!'),
+        );
       }
 
       if (oldImgPath) {
-        const oldImgFullPath = path.resolve(__dirname, '..', 'images', oldImgPath);
+        const oldImgFullPath = path.resolve(
+          __dirname,
+          '..',
+          'images',
+          oldImgPath,
+        );
         fs.unlinkSync(oldImgFullPath);
       }
 
