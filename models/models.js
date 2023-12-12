@@ -18,16 +18,23 @@ const User = sequelize.define('user', {
 });
 
 User.findUserByCredentials = async (email, password) => {
-  const user = await User.findOne({ where: { email }, attributes: ['id', 'name', 'email', 'role', 'password'] });
+  const user = await User.findOne({
+    where: { email },
+    attributes: ['id', 'name', 'email', 'role', 'password'],
+  });
 
   if (!user) {
-    return Promise.reject(new UnauthorizedError('Неправильные почта или пароль'));
+    return Promise.reject(
+      new UnauthorizedError('Неправильные почта или пароль'),
+    );
   }
 
   const isPasswordValid = await bcrypt.compare(password, user.password);
 
   if (!isPasswordValid) {
-    return Promise.reject(new UnauthorizedError('Неправильные почта или пароль'));
+    return Promise.reject(
+      new UnauthorizedError('Неправильные почта или пароль'),
+    );
   }
 
   return user;
@@ -45,7 +52,7 @@ const BasketProduct = sequelize.define('basket_product', {
 const Product = sequelize.define('product', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
   name: { type: DataTypes.STRING, unique: true, allowNull: false },
-  description: { type: DataTypes.STRING, allowNull: true, defaultValue: '' },
+  description: { type: DataTypes.TEXT, allowNull: true, defaultValue: '' },
   price: { type: DataTypes.INTEGER, allowNull: false },
   img: { type: DataTypes.STRING, allowNull: false },
 });
