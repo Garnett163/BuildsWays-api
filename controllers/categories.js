@@ -162,10 +162,7 @@ const updateCategory = async (req, res, next) => {
 
     await category.save();
 
-    return res.send({
-      category,
-      message: 'Категория успешно обновлена',
-    });
+    return res.send(category);
   } catch (error) {
     if (error instanceof UniqueConstraintError) {
       return next(

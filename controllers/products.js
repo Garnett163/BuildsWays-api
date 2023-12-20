@@ -17,8 +17,10 @@ const getProducts = async (req, res, next) => {
     const offset = page * limit - limit;
 
     const queryOptions = categoryId
-      ? { where: { categoryId }, limit, offset }
-      : { limit, offset };
+      ? {
+        where: { categoryId }, limit, offset, order: [['id', 'ASC']],
+      }
+      : { limit, offset, order: [['id', 'ASC']] };
 
     const products = await Product.findAndCountAll(queryOptions);
     res.send(products);
@@ -129,7 +131,9 @@ const updateProduct = async (req, res, next) => {
       const existingProduct = await Product.findOne({ where: { name } });
 
       if (existingProduct) {
-        return next(new ConflictError('Товар с таким названием уже существует!'));
+        return next(
+          new ConflictError('Товар с таким названием уже существует!'),
+        );
       }
     }
 
