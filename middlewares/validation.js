@@ -38,6 +38,7 @@ const validateCreateAndUpdateProduct = celebrate({
     description: Joi.string().min(2).max(1200),
     price: Joi.number().required(),
     categoryId: Joi.number().required(),
+    parameters: Joi.string(),
   }),
 });
 

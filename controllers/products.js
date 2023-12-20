@@ -125,10 +125,12 @@ const updateProduct = async (req, res, next) => {
       return next(new NotFoundError('Товар с данным id не найден!'));
     }
 
-    const existingProduct = await Product.findOne({ where: { name } });
+    if (name && name !== product.name) {
+      const existingProduct = await Product.findOne({ where: { name } });
 
-    if (existingProduct && existingProduct.id !== productId) {
-      return next(new ConflictError('Товар с таким названием уже существует!'));
+      if (existingProduct) {
+        return next(new ConflictError('Товар с таким названием уже существует!'));
+      }
     }
 
     if (name) {
@@ -175,7 +177,8 @@ const updateProduct = async (req, res, next) => {
 
     if (parameters) {
       const productParameters = JSON.parse(parameters);
-      await ProductInfo.destroy({ where: { productId } });
+      // ЕСЛИ ЧТО РАСКОМЕНТИРОВАТЬ ДАННЫЙ КОД
+      // await ProductInfo.destroy({ where: { productId } });
 
       productParameters.forEach((i) => ProductInfo.create({
         title: i.title,
