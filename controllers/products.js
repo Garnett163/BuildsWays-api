@@ -18,9 +18,30 @@ const getProducts = async (req, res, next) => {
 
     const queryOptions = categoryId
       ? {
-        where: { categoryId }, limit, offset, order: [['id', 'ASC']],
+        where: { categoryId },
+        limit,
+        offset,
+        order: [['id', 'ASC']],
+        include: [
+          {
+            model: ProductInfo,
+            as: 'parameters',
+            attributes: ['title', 'description'],
+          },
+        ],
       }
-      : { limit, offset, order: [['id', 'ASC']] };
+      : {
+        limit,
+        offset,
+        order: [['id', 'ASC']],
+        include: [
+          {
+            model: ProductInfo,
+            as: 'parameters',
+            attributes: ['title', 'description'],
+          },
+        ],
+      };
 
     const products = await Product.findAndCountAll(queryOptions);
     res.send(products);
@@ -28,6 +49,27 @@ const getProducts = async (req, res, next) => {
     next(error);
   }
 };
+
+// const getProducts = async (req, res, next) => {
+//   // eslint-disable-next-line prefer-const
+//   let { categoryId, limit, page } = req.query;
+//   try {
+//     page = page || 1;
+//     limit = limit || 9;
+//     const offset = page * limit - limit;
+
+//     const queryOptions = categoryId
+//       ? {
+//         where: { categoryId }, limit, offset, order: [['id', 'ASC']],
+//       }
+//       : { limit, offset, order: [['id', 'ASC']] };
+
+//     const products = await Product.findAndCountAll(queryOptions);
+//     res.send(products);
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 
 const createProduct = async (req, res, next) => {
   const {
