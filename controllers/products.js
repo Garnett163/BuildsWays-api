@@ -26,7 +26,7 @@ const getProducts = async (req, res, next) => {
           {
             model: ProductInfo,
             as: 'parameters',
-            attributes: ['title', 'description'],
+            attributes: ['title', 'description', 'id'],
           },
         ],
       }
@@ -38,7 +38,7 @@ const getProducts = async (req, res, next) => {
           {
             model: ProductInfo,
             as: 'parameters',
-            attributes: ['title', 'description'],
+            attributes: ['title', 'description', 'id'],
           },
         ],
       };
@@ -224,7 +224,7 @@ const updateProduct = async (req, res, next) => {
     if (parameters) {
       const productParameters = JSON.parse(parameters);
       // ЕСЛИ ЧТО РАСКОМЕНТИРОВАТЬ ДАННЫЙ КОД
-      // await ProductInfo.destroy({ where: { productId } });
+      await ProductInfo.destroy({ where: { productId } });
 
       productParameters.forEach((i) => ProductInfo.create({
         title: i.title,
