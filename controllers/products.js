@@ -16,6 +16,14 @@ const getProducts = async (req, res, next) => {
     limit = limit || 9;
     const offset = page * limit - limit;
 
+    const countOptions = categoryId
+      ? {
+        where: { categoryId },
+      }
+      : {};
+
+    const count = await Product.count(countOptions);
+
     const queryOptions = categoryId
       ? {
         where: { categoryId },
@@ -43,8 +51,9 @@ const getProducts = async (req, res, next) => {
         ],
       };
 
-    const products = await Product.findAndCountAll(queryOptions);
-    res.send(products);
+    const products = await Product.findAll(queryOptions);
+
+    res.send({ count, products });
   } catch (error) {
     next(error);
   }
@@ -113,7 +122,22 @@ const createProduct = async (req, res, next) => {
         productId: product.id,
       }));
     }
-    return res.status(CREATED_STATUS).send(product);
+
+    const createdProduct = await Product.findByPk(product.id, {
+      include: [
+        {
+          model: ProductInfo,
+          as: 'parameters',
+          attributes: ['title', 'description', 'id'],
+        },
+      ],
+    });
+
+    const createdProductData = createdProduct.toJSON();
+    createdProductData.parameters = await ProductInfo.findAll({
+      where: { productId: product.id },
+    });
+    return res.status(CREATED_STATUS).send(createdProductData);
   } catch (error) {
     if (error instanceof UniqueConstraintError) {
       return next(new ConflictError('Товар с таким названием уже существует!'));
@@ -142,6 +166,8 @@ const deleteProduct = async (req, res, next) => {
       fs.unlinkSync(imagePath);
     }
 
+    await ProductInfo.destroy({ where: { productId: id } });
+
     await product.destroy();
 
     return res.send({
@@ -163,7 +189,15 @@ const updateProduct = async (req, res, next) => {
   } = req.body;
 
   try {
-    const product = await Product.findByPk(productId);
+    const product = await Product.findByPk(productId, {
+      include: [
+        {
+          model: ProductInfo,
+          as: 'parameters',
+          attributes: ['title', 'description', 'id'],
+        },
+      ],
+    });
 
     if (!product) {
       return next(new NotFoundError('Товар с данным id не найден!'));
@@ -223,7 +257,6 @@ const updateProduct = async (req, res, next) => {
 
     if (parameters) {
       const productParameters = JSON.parse(parameters);
-      // ЕСЛИ ЧТО РАСКОМЕНТИРОВАТЬ ДАННЫЙ КОД
       await ProductInfo.destroy({ where: { productId } });
 
       productParameters.forEach((i) => ProductInfo.create({
