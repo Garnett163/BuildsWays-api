@@ -253,8 +253,6 @@ const updateProduct = async (req, res, next) => {
       product.img = newImgFileName;
     }
 
-    await product.save();
-
     if (parameters) {
       const productParameters = JSON.parse(parameters);
       await ProductInfo.destroy({ where: { productId } });
@@ -266,7 +264,19 @@ const updateProduct = async (req, res, next) => {
       }));
     }
 
-    return res.send(product);
+    await product.save();
+
+    const updatedProduct = await Product.findByPk(productId, {
+      include: [
+        {
+          model: ProductInfo,
+          as: 'parameters',
+          attributes: ['title', 'description', 'id'],
+        },
+      ],
+    });
+
+    return res.send(updatedProduct);
   } catch (error) {
     if (error instanceof UniqueConstraintError) {
       return next(new ConflictError('Товар с таким названием уже существует!'));
